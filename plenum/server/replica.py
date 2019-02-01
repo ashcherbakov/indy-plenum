@@ -1381,9 +1381,11 @@ class Replica(HasActionQueue, MessageProcessor, HookManager):
         invalid_from_pp = invalid_index_serializer.deserialize(pre_prepare.discarded)
 
         def revert():
+            self.logger.info('{} reverted PrePrepare {}'.format(self, pre_prepare))
             self.revert(pre_prepare.ledgerId,
                         old_state_root,
                         len(pre_prepare.reqIdr) - len(invalid_from_pp))
+
         if len(invalid_indices) != len(invalid_from_pp):
             if self.isMaster:
                 revert()
@@ -1404,13 +1406,13 @@ class Replica(HasActionQueue, MessageProcessor, HookManager):
             return PP_APPLY_WRONG_DIGEST
 
         if self.isMaster:
-            if pre_prepare.stateRootHash != self.stateRootHash(pre_prepare.ledgerId):
-                revert()
-                return PP_APPLY_WRONG_STATE
-
             if pre_prepare.txnRootHash != self.txnRootHash(pre_prepare.ledgerId):
                 revert()
                 return PP_APPLY_ROOT_HASH_MISMATCH
+
+            if pre_prepare.stateRootHash != self.stateRootHash(pre_prepare.ledgerId):
+                revert()
+                return PP_APPLY_WRONG_STATE
 
             try:
                 self.execute_hook(ReplicaHooks.APPLY_PPR, pre_prepare)

@@ -2805,7 +2805,7 @@ class Node(HasActionQueue, Motor, Propagator, MessageProcessor, HasFileStorage,
         if self.isParticipating:
             self.processOrdered(msg)
         else:
-            logger.debug("{} stashing {} since mode is {}".format(self, msg, self.mode))
+            logger.info("{} stashing {} since mode is {}".format(self, msg, self.mode))
             self.stashedOrderedReqs.append(msg)
 
     def processEscalatedException(self, ex):
@@ -3553,12 +3553,12 @@ class Node(HasActionQueue, Motor, Propagator, MessageProcessor, HasFileStorage,
                         (msg.viewNo,
                          msg.ppSeqNo),
                         self.ledgerManager.last_caught_up_3PC) >= 0:
-                    logger.debug(
+                    logger.info(
                         '{} ignoring stashed ordered msg {} since ledger '
                         'manager has last_caught_up_3PC as {}'.format(
                             self, msg, self.ledgerManager.last_caught_up_3PC))
                     continue
-                logger.debug(
+                logger.info(
                     '{} applying stashed Ordered msg {}'.format(self, msg))
                 # Since the PRE-PREPAREs ans PREPAREs corresponding to these
                 # stashed ordered requests was not processed.
@@ -3569,7 +3569,7 @@ class Node(HasActionQueue, Motor, Propagator, MessageProcessor, HasFileStorage,
             self.processOrdered(msg)
             i += 1
 
-        logger.debug(
+        logger.info(
             "{} processed {} stashed ordered requests".format(
                 self, i))
         # Resetting monitor after executing all stashed requests so no view
